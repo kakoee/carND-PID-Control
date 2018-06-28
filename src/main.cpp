@@ -28,16 +28,39 @@ std::string hasData(std::string s) {
   return "";
 }
 
+
+double normalize(double input)
+{
+	if(input>1) return 1;
+	if(input<-1) return -1;
+	else return input;
+
+    const double min = -1000;
+    const double max = 1000;
+    double average      = (min + max) / 2;
+    double range        = (max - min) / 2;
+    double normalized_x = (input - average) / range;
+    return normalized_x;
+}
+
+
+
 int main()
 {
   uWS::Hub h;
 
   PID pid;
+  PID pid_th;
   // TODO: Initialize the pid variable.
   
-  pid.Init(1,1,1);
+  pid.Init(0.134611, 0.000270736, 3.05349);
+  pid_th.Init(0.316731, 0.0000, 0.0226185);
 
-  h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  pid.Init(0.1, 0, 3);
+  //pid_th.Init(0.5, 0.05, 0.005);
+
+
+  h.onMessage([&pid,&pid_th](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -52,25 +75,70 @@ int main()
           double cte = std::stod(j[1]["cte"].get<std::string>());
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
-          double steer_value;
+          double steer_value,throttle_value;
           /*
           * TODO: Calcuate steering value here, remember the steering value is
           * [-1, 1].
           * NOTE: Feel free to play around with the throttle and speed. Maybe use
           * another PID controller to control the speed!
           */
-          pid.UpdateError(cte);
-          steer_value = pid.TotalError();
+          double coeff_delta[3];
+          double coeff[3];
+		  coeff[0]= pid.Kp;;
+		  coeff[1] = pid.Ki;
+		  coeff[2] = pid.Kd;  
+  		  coeff_delta[0]= 1;
+          coeff_delta[1] = 1;
+          coeff_delta[2] = 1;            
+		  /*
+          double error,best_error;
+          best_error=abs(pid.TotalError());
+          while((coeff_delta[0]+coeff_delta[1]+coeff_delta[2]) > 0.2){
+	          for(int i=0;i<3;i++){
+	          		coeff[i]+=coeff_delta[i];
+	          		error=pid.TestCoeff(cte,i,coeff[i]);
+	          		if(abs(error)<best_error){
+	          			best_error=abs(error);
+	          			coeff_delta[i]*=1.1;
+	          		}
+	          		else{
+	          			coeff[i]-=coeff_delta[i];
+						coeff[i]-=coeff_delta[i];
+	          			error=pid.TestCoeff(cte,i,coeff[i]);					
+	          			if(abs(error)<best_error){
+	          				best_error=abs(error);
+	          				coeff_delta[i]*=1.1;
+	          			}else{
+	          				coeff[i]+=coeff_delta[i];
+	          				coeff_delta[i]*=0.9;
+
+	          			}
+
+	          		}
+
+	          }
+	      }*/
+
+		  pid.UpdateError(cte);
+          steer_value = normalize(pid.TotalError());
+
+          // update error and calculate throttle_value at each step
+          pid_th.UpdateError(fabs(cte));     // |cte|
+          //pid_t.UpdateError(pow(cte, 2));   // cte^2
+          throttle_value = pid_th.TotalError() + 0.7;
+
           
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << " coeff steer:"<< coeff[0] << ", "<< coeff[1] << ", " << coeff[2] << std::endl;
+//          std::cout << "CTE: " << cte << " Steering Value: " << steer_value <<  std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["throttle"] = 0.3;//throttle_value;//0.3;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+          		
         }
       } else {
         // Manual driving

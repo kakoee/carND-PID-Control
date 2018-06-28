@@ -22,6 +22,12 @@ public:
   double sum_cte;
   bool first;
   
+  double coeff_delta[3];
+  double best_err;
+  int initial_settelment; 
+  int round;
+  int param_index;
+  int add_sub;
 
   /*
   * Constructor
@@ -47,6 +53,14 @@ public:
   * Calculate the total PID error.
   */
   double TotalError();
+
+  void SetCoeffId(int coeff_id,double value);
+  void AddCoeffId(int coeff_id,double value);
+
+
+  double TestCoeff(double cte, int coeff_id, double value);
+  void   SetCoeffAll(double Kp, double Ki, double Kd);
+
 };
 
 #endif /* PID_H */
