@@ -10,12 +10,18 @@ public:
   double i_error;
   double d_error;
 
+  double total_error;
   /*
   * Coefficients
   */ 
   double Kp;
   double Ki;
   double Kd;
+  
+  double prev_cte;
+  double sum_cte;
+  bool first;
+  
 
   /*
   * Constructor
