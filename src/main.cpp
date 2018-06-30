@@ -53,11 +53,22 @@ int main()
   PID pid_th;
   // TODO: Initialize the pid variable.
   
-  pid.Init(0.134611, 0.000270736, 3.05349);
-  pid_th.Init(0.316731, 0.0000, 0.0226185);
 
-  pid.Init(0.1, 0, 3);
-  //pid_th.Init(0.5, 0.05, 0.005);
+// first Manual tuning to find out the good values. then use twiddle to tweak further
+/*
+1- Set all gains to zero.
+2- Increase the P gain until the response to a disturbance is steady oscillation.
+3- Increase the D gain until the the oscillations go away (i.e. it's critically damped).
+4- Repeat steps 2 and 3 until increasing the D gain does not stop the oscillations.
+5- Set P and D to the last stable values.
+6- Increase the I gain until it brings us to the setpoint with the number of oscillations desired 
+*/
+
+  pid.Init(0.125, 0.002, 3.2);
+  pid_th.Init(0.28, 0, 0.02);
+
+  //pid.twiddle=true;
+  //pid_th.twiddle=true;
 
 
   h.onMessage([&pid,&pid_th](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
@@ -82,59 +93,26 @@ int main()
           * NOTE: Feel free to play around with the throttle and speed. Maybe use
           * another PID controller to control the speed!
           */
-          double coeff_delta[3];
-          double coeff[3];
-		  coeff[0]= pid.Kp;;
-		  coeff[1] = pid.Ki;
-		  coeff[2] = pid.Kd;  
-  		  coeff_delta[0]= 1;
-          coeff_delta[1] = 1;
-          coeff_delta[2] = 1;            
-		  /*
-          double error,best_error;
-          best_error=abs(pid.TotalError());
-          while((coeff_delta[0]+coeff_delta[1]+coeff_delta[2]) > 0.2){
-	          for(int i=0;i<3;i++){
-	          		coeff[i]+=coeff_delta[i];
-	          		error=pid.TestCoeff(cte,i,coeff[i]);
-	          		if(abs(error)<best_error){
-	          			best_error=abs(error);
-	          			coeff_delta[i]*=1.1;
-	          		}
-	          		else{
-	          			coeff[i]-=coeff_delta[i];
-						coeff[i]-=coeff_delta[i];
-	          			error=pid.TestCoeff(cte,i,coeff[i]);					
-	          			if(abs(error)<best_error){
-	          				best_error=abs(error);
-	          				coeff_delta[i]*=1.1;
-	          			}else{
-	          				coeff[i]+=coeff_delta[i];
-	          				coeff_delta[i]*=0.9;
-
-	          			}
-
-	          		}
-
-	          }
-	      }*/
+                  
 
 		  pid.UpdateError(cte);
           steer_value = normalize(pid.TotalError());
 
-          // update error and calculate throttle_value at each step
-          pid_th.UpdateError(fabs(cte));     // |cte|
-          //pid_t.UpdateError(pow(cte, 2));   // cte^2
-          throttle_value = pid_th.TotalError() + 0.7;
+          pid_th.UpdateError(fabs(cte));     
+          throttle_value = pid_th.TotalError() ;
 
           
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << " coeff steer:"<< coeff[0] << ", "<< coeff[1] << ", " << coeff[2] << std::endl;
-//          std::cout << "CTE: " << cte << " Steering Value: " << steer_value <<  std::endl;
+          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+          std::cout   << " coeff steering:"<< pid.Kp << ", "<< pid.Ki << ", " << pid.Kd << std::endl;
+          //std::cout << " coeff throttle:"<< pid_th.Kp << ", "<< pid_th.Ki << ", " << pid_th.Kd << std::endl;
+
+
+          //std::cout << "AddSub: " << pid.add_sub << "TotalError: " << pid.total_error << " BestError: " << pid.best_err << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;//throttle_value;//0.3;
+          msgJson["throttle"] = 0.3;// + throttle_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);

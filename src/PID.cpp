@@ -23,14 +23,16 @@ void PID::Init(double Kp, double Ki, double Kd) {
     d_error=0;  
     total_error = 0;
 
-    coeff_delta[0]= 0.5*Kp;
-    coeff_delta[1] = 0.5*Ki;
-    coeff_delta[2] = 0.5*Kd;   
+    coeff_delta[0]= 0.1*Kp;
+    coeff_delta[1] = 0;// no need to twiddle I
+    coeff_delta[2] = 0.1*Kd;   
     best_err=99999;
-    initial_settelment = 1;
+    initial_settelment = 100;
     round=0; 
     param_index=0;
     add_sub=0;
+
+    twiddle=false;
 
 }
 
@@ -49,15 +51,13 @@ void PID::UpdateError(double cte) {
     first=false;
     
 
-    if(round<=initial_settelment){
-        round++;
-    }
-    else{
+    if(round>initial_settelment){
         if(round%100!=0)
             total_error=total_error+cte*cte;
         else{
             if(add_sub==0){
                 AddCoeffId(param_index,coeff_delta[param_index]);
+                best_err=total_error;
                 add_sub=1;
             }
             else if(add_sub==1){
@@ -91,12 +91,14 @@ void PID::UpdateError(double cte) {
             total_error=0;
         }
 
-        round++;
+        
     }
 
-if(round>10000)
-    round=initial_settelment+1;
-
+//stop twiddleing
+if(round<2000000)
+    round++;
+else
+    twiddle=false;
 
 }
 

@@ -29,6 +29,8 @@ public:
   int param_index;
   int add_sub;
 
+  bool twiddle;
+
   /*
   * Constructor
   */
