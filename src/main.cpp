@@ -104,7 +104,7 @@ int main()
           
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
-          std::cout   << " coeff steering:"<< pid.Kp << ", "<< pid.Ki << ", " << pid.Kd << std::endl;
+          //std::cout   << " coeff steering:"<< pid.Kp << ", "<< pid.Ki << ", " << pid.Kd << std::endl;
           //std::cout << " coeff throttle:"<< pid_th.Kp << ", "<< pid_th.Ki << ", " << pid_th.Kd << std::endl;
 
 
