@@ -1,15 +1,16 @@
 ## Tuning PID parameters:
- - Manual : first tune parametrs manually to find the good start point. use below steps for manual tuning:
-1- Set all gains to zero.
-2- Increase the P gain until the response to a disturbance is steady oscillation.
-3- Increase the D gain until the the oscillations go away (i.e. it's critically damped).
-4- Repeat steps 2 and 3 until increasing the D gain does not stop the oscillations.
-5- Set P and D to the last stable values.
-6- Increase the I gain until it brings us to the setpoint with the number of oscillations desired 
+* - Manual : first tune parametrs manually to find the good start point. use below steps for manual tuning:
+1. Set all gains to zero.
+2. Increase the P gain until the response to a disturbance is steady oscillation.
+3. Increase the D gain until the the oscillations go away (i.e. it's critically damped).
+4. Repeat steps 2 and 3 until increasing the D gain does not stop the oscillations.
+5. Set P and D to the last stable values.
+6. Increase the I gain until it brings us to the setpoint with the number of oscillations desired 
 
-note that, If the oscillations grow bigger and bigger then you need to reduce P gain. tune D to have smooth response. 
+* note that, If the oscillations grow bigger and bigger then you need to reduce P gain. tune D to have smooth response. 
 
-  - Automatic : use twiddle method by gradually increase each parameter and see how it affects the error. if it worsen the error , then decrease parameter. if error got better then keep decreasing until it gets worse. Then reduce the amount of increase/decrease and repeat the procedure until the increment/decrement step become too small. 
+*  - Automatic : 
+use twiddle method by gradually increase each parameter and see how it affects the error. if it worsen the error , then decrease parameter. if error got better then keep decreasing until it gets worse. Then reduce the amount of increase/decrease and repeat the procedure until the increment/decrement step become too small. 
 
 
 
