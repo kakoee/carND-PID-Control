@@ -62,6 +62,8 @@ int main()
 4- Repeat steps 2 and 3 until increasing the D gain does not stop the oscillations.
 5- Set P and D to the last stable values.
 6- Increase the I gain until it brings us to the setpoint with the number of oscillations desired 
+
+note that, If the oscillations grow bigger and bigger then you need to reduce P gain. 
 */
 
   pid.Init(0.125, 0.002, 3.2);

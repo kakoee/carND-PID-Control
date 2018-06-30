@@ -7,7 +7,7 @@
 5- Set P and D to the last stable values.
 6- Increase the I gain until it brings us to the setpoint with the number of oscillations desired 
 
-note that, If the oscillations grow bigger and bigger then you need to reduce P gain. 
+note that, If the oscillations grow bigger and bigger then you need to reduce P gain. tune D to have smooth response. 
 
   - Automatic : use twiddle method by gradually increase each parameter and see how it affects the error. if it worsen the error , then decrease parameter. if error got better then keep decreasing until it gets worse. Then reduce the amount of increase/decrease and repeat the procedure until the increment/decrement step become too small. 
 
